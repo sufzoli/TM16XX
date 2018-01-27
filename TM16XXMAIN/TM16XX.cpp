@@ -23,7 +23,19 @@ const uint8_t HexChars[16] =
 };
 
 
+TM16XX::TM16XX() {}
+
 TM16XX::TM16XX(chip_type ic, uint8_t pin_CLK, uint8_t pin_DIO)
+{
+	init(ic, pin_CLK, pin_DIO);
+}
+TM16XX::TM16XX(chip_type ic, uint8_t pin_CLK, uint8_t pin_DIO, uint8_t pin_STB)
+{
+	init( ic, pin_CLK, pin_DIO, pin_STB);
+}
+
+
+void TM16XX::init(chip_type ic, uint8_t pin_CLK, uint8_t pin_DIO)
 {
 	_CLK = pin_CLK;
 	_DIO = pin_DIO;
@@ -34,7 +46,7 @@ TM16XX::TM16XX(chip_type ic, uint8_t pin_CLK, uint8_t pin_DIO)
 	digitalWrite(_DIO, 1);
 }
 
-TM16XX::TM16XX(chip_type ic, uint8_t pin_CLK, uint8_t pin_DIO, uint8_t pin_STB)
+void TM16XX::init(chip_type ic, uint8_t pin_CLK, uint8_t pin_DIO, uint8_t pin_STB)
 {
 	_CLK = pin_CLK;
 	_DIO = pin_DIO;
@@ -133,6 +145,28 @@ uint8_t TM16XX::p2_read(void)
 	p2_ack();
 	p2_stop();
 	return revalue;
+}
+
+void TM16XX::p3_read(uint8_t* buff)
+{
+	p3_start();
+	p2_write(TM16XX_COMMAND_DATA_SET | TM16XX_DATA_READ);
+	pinMode(_DIO, INPUT_PULLUP); // Change data direction to input
+	delayMicroseconds(_IC.clk_delay); // TWAIT
+	for (uint8_t j = 0; j < _IC.ks_read_bytes; j++)
+	{
+		for (uint8_t i = 0; i < 8; i++)
+		{
+			buff[j] <<= 1;
+			digitalWrite(_CLK, 0);
+			delayMicroseconds(_IC.clk_delay);
+			digitalWrite(_CLK, 1);
+			buff[j] = buff[j] | digitalRead(_DIO);
+			delayMicroseconds(_IC.clk_delay);
+		}
+	}
+	pinMode(_DIO, OUTPUT);
+	p3_stop();
 }
 
 void TM16XX::p2_command(uint8_t command)
@@ -272,13 +306,153 @@ void TM16XX::DisplayNum(uint8_t addr, bool leadingzero, uint8_t displaylen, uint
 		data /= 10;
 	}
 }
-/*
-void TM16XX::DisplayNum(uint8_t addr, bool leadingzero, uint8_t displaylen, uint8_t data)
+
+
+
+Display_TM1638_8D_16K::Display_TM1638_8D_16K(uint8_t pin_CLK, uint8_t pin_DIO, uint8_t pin_STB)
 {
+	init(TM1638, pin_CLK, pin_DIO, pin_STB);
+}
+
+uint32_t Display_TM1638_8D_16K::KeyRead(void)
+{
+	uint32_t keys = 0;
+	p3_start();
+	p2_write(TM16XX_COMMAND_DATA_SET | TM16XX_DATA_READ);
+	pinMode(_DIO, INPUT_PULLUP); // Change data direction to input
+	delayMicroseconds(_IC.clk_delay); // TWAIT
+	for (uint8_t i = 0; i < 32; i++)
+	{
+		keys <<= 1;
+		digitalWrite(_CLK, 0);
+		delayMicroseconds(_IC.clk_delay);
+		digitalWrite(_CLK, 1);
+		keys = keys | digitalRead(_DIO);
+		delayMicroseconds(_IC.clk_delay);
+	}
+	pinMode(_DIO, OUTPUT);
+	p3_stop();
+	return keys;
+}
+
+void Display_TM1638_8D_16K::Clear(void)
+{
+	// Clear buffer
+	for (uint8_t i = 0; i < 8; i++)
+	{
+		_BUFF[i] = 0;
+	}
+	TM16XX::Clear();
+}
+
+void Display_TM1638_8D_16K::DisplayNum(uint8_t addr, bool leadingzero, uint8_t displaylen, uint32_t data)
+{
+	uint8_t tempdata = 0;
 	for (int i = displaylen - 1; i >= 0; i--)
 	{
-		DisplayBin((addr + i) << _IC.buff_word_width, (leadingzero || data != 0) ? HexChars[data % 10] : 0);
+		_BUFF[addr + i] = (leadingzero || data != 0) ? HexChars[data % 10] : 0;
+		data /= 10;
+	}
+	for (uint8_t i = 0; i < 8; i++)
+	{
+		for (uint8_t j = 0; j < 8; j++)
+		{
+			tempdata = (tempdata << 1) | ((_BUFF[j] & (1 << i)) >> i);
+		}
+		DisplayBin(i << 1, tempdata);
+	}
+}
+
+/*
+Display_TM1637_Clock
+*/
+
+
+Display_TM1637_Clock::Display_TM1637_Clock(uint8_t pin_CLK, uint8_t pin_DIO)
+{
+	init(TM1637, pin_CLK, pin_DIO);
+}
+
+void Display_TM1637_Clock::Clear(void)
+{
+	_BUFF = 0;
+	TM16XX::Clear();
+}
+
+void Display_TM1637_Clock::DisplayNum(uint8_t addr, bool leadingzero, uint8_t displaylen, uint16_t data)
+{
+	uint8_t bindata;
+	for (int i = displaylen - 1; i >= 0; i--)
+	{
+		// generate the binary data of the digit
+		bindata = (leadingzero || data != 0) ? HexChars[data % 10] : 0;
+		// if it is the second digit (contains the hour/munite separator column)
+		if ((addr + i) == 1)
+		{
+			bindata = bindata | (_BUFF & 0x80); // use the colon state from the buffer
+			_BUFF = bindata; // save the current data to the buffer
+		}
+		// display it
+		DisplayBin((addr + i), bindata);
 		data /= 10;
 	}
 }
+
+void Display_TM1637_Clock::Hour(uint8_t hour)
+{
+	DisplayNum(0, true, 2, hour);
+}
+
+void Display_TM1637_Clock::Min(uint8_t min)
+{
+	DisplayNum(2, true, 2, min);
+}
+
+void Display_TM1637_Clock::Clock(uint8_t hour, uint8_t min)
+{
+	DisplayNum(0, true, 2, hour);
+	DisplayNum(2, true, 2, min);
+}
+
+void Display_TM1637_Clock::Colon(bool colon)
+{
+	_BUFF = colon ? _BUFF | 0x80 : _BUFF & 0x7F;
+	DisplayBin(1, _BUFF);
+}
+
+/*
+Display_TM1638_8D_8K_8L
 */
+
+Display_TM1638_8D_8K_8L::Display_TM1638_8D_8K_8L(uint8_t pin_CLK, uint8_t pin_DIO, uint8_t pin_STB)
+{
+	init(TM1638, pin_CLK, pin_DIO, pin_STB);
+}
+
+uint8_t Display_TM1638_8D_8K_8L::KeyRead(void)
+{
+	uint8_t keys = 0;
+	p3_start();
+	p2_write(TM16XX_COMMAND_DATA_SET | TM16XX_DATA_READ);
+	pinMode(_DIO, INPUT_PULLUP); // Change data direction to input
+	delayMicroseconds(_IC.clk_delay); // TWAIT
+	for (uint8_t i = 0; i < 32; i++)
+	{
+		if(i % 4 == 0)
+			keys <<= 1;
+		digitalWrite(_CLK, 0);
+		delayMicroseconds(_IC.clk_delay);
+		digitalWrite(_CLK, 1);
+		if (i % 4 == 0)
+			keys = keys | digitalRead(_DIO);
+		delayMicroseconds(_IC.clk_delay);
+	}
+	pinMode(_DIO, OUTPUT);
+	p3_stop();
+	return keys;
+}
+
+void Display_TM1638_8D_8K_8L::LED(uint8_t num, bool enable)
+{
+	DisplayBin(((num - 1) << 1) | 1, enable ? 1 : 0);
+}

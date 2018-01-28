@@ -43,6 +43,7 @@ struct chip_type
 #define TA6932 chip_type {5, TM16XX_IF_TYPE_P3, 0, 16, TM16XX_BUFF_WORD_8}
 #define TM1616 chip_type {5, TM16XX_IF_TYPE_P3, 0, 8, TM16XX_BUFF_WORD_16}
 
+#define TM1636 chip_type {5, TM16XX_IF_TYPE_P2, 1, 4, TM16XX_BUFF_WORD_8}
 #define TM1637 chip_type {5, TM16XX_IF_TYPE_P2, 1, 6, TM16XX_BUFF_WORD_8}
 #define TM1638 chip_type {5, TM16XX_IF_TYPE_P3, 4, 16, TM16XX_BUFF_WORD_16}
 #define TM1640 chip_type {5, TM16XX_IF_TYPE_P2, 0, 16, TM16XX_BUFF_WORD_8}
@@ -171,7 +172,29 @@ class Display_TM1637_Clock : public TM16XX
 		void Min(uint8_t min);
 		void Clock(uint8_t hour, uint8_t min);
 		void Colon(bool colon);
-private:
+	private:
 		// Variables
 		uint8_t _BUFF = 0; // single character buffer for the second digit used to store data to be able to set the separator colon individually
+};
+
+#define SEEED_TICK_TOCK_CLK 7
+#define SEEED_TICK_TOCK_DIO 8
+
+class Display_Seeed_Tick_Tock : public TM16XX
+{
+public:
+	// Constructor
+	Display_Seeed_Tick_Tock();
+	// Functions
+	void Clear(void); // The clear function must be overridden because the internal buffer must be cleared also
+	void DisplayNum(uint8_t addr, bool leadingzero, uint8_t displaylen, uint16_t data);
+	void Hour(uint8_t hour);
+	void Min(uint8_t min);
+	void Clock(uint8_t hour, uint8_t min);
+	void Colon(bool colon);
+	void Colon_Lower(bool lower_dot);
+	void Colon_Upper(bool upper_dot);
+private:
+	// Variables
+	uint8_t _BUFF[2] = { 0, 0 }; // double character buffer for the 3rd and 4th digit used to store data to be able to set the separator colon individually the upper dot for the 3rd and the lower for the 4th
 };

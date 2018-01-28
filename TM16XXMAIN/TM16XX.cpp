@@ -456,3 +456,74 @@ void Display_TM1638_8D_8K_8L::LED(uint8_t num, bool enable)
 {
 	DisplayBin(((num - 1) << 1) | 1, enable ? 1 : 0);
 }
+
+/*
+Display_Seeed_Tick_Tock
+*/
+
+
+Display_Seeed_Tick_Tock::Display_Seeed_Tick_Tock()
+{
+	init(TM1636, SEEED_TICK_TOCK_CLK, SEEED_TICK_TOCK_DIO);
+}
+
+void Display_Seeed_Tick_Tock::Clear(void)
+{
+	_BUFF[0] = 0;
+	_BUFF[1] = 0;
+	TM16XX::Clear();
+}
+
+void Display_Seeed_Tick_Tock::DisplayNum(uint8_t addr, bool leadingzero, uint8_t displaylen, uint16_t data)
+{
+	uint8_t bindata;
+	for (int i = displaylen - 1; i >= 0; i--)
+	{
+		// generate the binary data of the digit
+		bindata = (leadingzero || data != 0) ? HexChars[data % 10] : 0;
+		// if it is the 3rd or 4th digit (contains the hour/munite separator column)
+		if ((addr + i) == 2 || (addr + i) == 3)
+		{
+			bindata = bindata | (_BUFF[(addr + i) - 2] & 0x80); // use the colon state from the buffer
+			_BUFF[(addr + i) - 2] = bindata; // save the current data to the buffer
+		}
+		// display it
+		DisplayBin((addr + i), bindata);
+		data /= 10;
+	}
+}
+
+void Display_Seeed_Tick_Tock::Hour(uint8_t hour)
+{
+	DisplayNum(0, true, 2, hour);
+}
+
+void Display_Seeed_Tick_Tock::Min(uint8_t min)
+{
+	DisplayNum(2, true, 2, min);
+}
+
+void Display_Seeed_Tick_Tock::Clock(uint8_t hour, uint8_t min)
+{
+	DisplayNum(0, true, 2, hour);
+	DisplayNum(2, true, 2, min);
+}
+
+void Display_Seeed_Tick_Tock::Colon(bool colon)
+{
+	_BUFF[0] = colon ? _BUFF[0] | 0x80 : _BUFF[0] & 0x7F;
+	_BUFF[1] = colon ? _BUFF[1] | 0x80 : _BUFF[1] & 0x7F;
+	DisplayBin(2, _BUFF,2);
+}
+
+void Display_Seeed_Tick_Tock::Colon_Lower(bool lower_dot)
+{
+	_BUFF[1] = lower_dot ? _BUFF[1] | 0x80 : _BUFF[1] & 0x7F;
+	DisplayBin(3, _BUFF[1]);
+}
+
+void Display_Seeed_Tick_Tock::Colon_Upper(bool upper_dot)
+{
+	_BUFF[0] = upper_dot ? _BUFF[0] | 0x80 : _BUFF[0] & 0x7F;
+	DisplayBin(2, _BUFF[0]);
+}

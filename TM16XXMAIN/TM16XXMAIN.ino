@@ -42,8 +42,10 @@ void test_tm1637_clock()
 
 	// display.DisplayBin(3, 0xFF);
 
-	
+	display.DisplayHex(0, 4, 0xCDEF);
+
 	// display.Clock(23, 59);
+	/*
 	while (true)
 	{
 		for (uint16_t i = 0; i < 10000; i++)
@@ -57,7 +59,7 @@ void test_tm1637_clock()
 			delay(500);
 		}
 	}
-	
+	*/
 }
 
 /*

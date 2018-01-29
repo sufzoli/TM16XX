@@ -2,16 +2,22 @@
 
 #include <Arduino.h>
 
+// basic primitives
+
+// TM16XX Commands
 #define TM16XX_COMMAND_ADDRESS 0xC0
 #define TM16XX_COMMAND_CONTROL 0x80
 #define TM16XX_COMMAND_DATA_SET 0x40
 
+// TM16XX Data direction
 #define TM16XX_DATA_READ 0x02
 #define TM16XX_DATA_WRITE 0x00
 
+// TM16XX Addressing modes
 #define TM16XX_DATA_AUTOINC 0x00
 #define TM16XX_DATA_FIXADDR 0x04
 
+// TM16XX Brightness control codes
 #define TM16XX_CONTROL_PWM_1 0x00
 #define TM16XX_CONTROL_PWM_2 0x01
 #define TM16XX_CONTROL_PWM_4 0x02
@@ -21,61 +27,89 @@
 #define TM16XX_CONTROL_PWM_13 0x06
 #define TM16XX_CONTROL_PWM_14 0x07
 
+// TM16XX Display control codes
 #define TM16XX_CONTROL_OFF 0x00
 #define TM16XX_CONTROL_ON 0x08
 
+// IC properties - used by the chip declarations
+
+// buffer word width
 #define TM16XX_BUFF_WORD_8 0x00
 #define TM16XX_BUFF_WORD_16 0x01
 
+// interface type
+#define TM16XX_IF_TYPE_P2 0		// 2 wire I2C like (no I2C address) interface
+#define TM16XX_IF_TYPE_P3 1		// 3 wire SPI like (common input/output pin) interface
 
-#define TM16XX_IF_TYPE_P2 0
-#define TM16XX_IF_TYPE_P3 1
-
+// Chip type structure. Define how should we use the various chips
 struct chip_type
 {
-	uint16_t clk_delay;
-	uint8_t if_type;
-	uint8_t ks_read_bytes;
-	uint8_t display_buff_len;
-	uint8_t buff_word_width;
+	uint16_t clk_delay;			// delay between clock cycles. Used to stay below the maximum frequency
+	uint8_t if_type;			// Interface type - 2 or 3 wire in the moment (1 and 4 wire interface also exists, but not implemented yet)
+	uint8_t ks_read_bytes;		// Number of bytes should be read when downloading the status of the buttons (keyscan)
+	uint8_t display_buff_len;	// number of bytes in the chip's display buffer
+	uint8_t buff_word_width;	// word with of the buffer
 };
 
+// Declaration of the chips I don't have on hand yet, so it is UNTESTED:
 #define TA6932 chip_type {5, TM16XX_IF_TYPE_P3, 0, 16, TM16XX_BUFF_WORD_8}
 #define TM1616 chip_type {5, TM16XX_IF_TYPE_P3, 0, 8, TM16XX_BUFF_WORD_16}
+#define TM1640 chip_type {5, TM16XX_IF_TYPE_P2, 0, 16, TM16XX_BUFF_WORD_8}
 
+// Chips I already tested:
 #define TM1636 chip_type {5, TM16XX_IF_TYPE_P2, 1, 4, TM16XX_BUFF_WORD_8}
 #define TM1637 chip_type {5, TM16XX_IF_TYPE_P2, 1, 6, TM16XX_BUFF_WORD_8}
 #define TM1638 chip_type {5, TM16XX_IF_TYPE_P3, 4, 16, TM16XX_BUFF_WORD_16}
-#define TM1640 chip_type {5, TM16XX_IF_TYPE_P2, 0, 16, TM16XX_BUFF_WORD_8}
+
+
+// TM16XX Base class
+// It handles the basic communication with the chip and also a few basic functions
+// These functions may overridden in the inherited classes
 
 class TM16XX
 {
 	public:
 		// Constructor
-		TM16XX();
+		TM16XX(); // Empty constructor
+		// constructor for the two wire interface
+		// ic - Type of the chip from the list above
+		// pin_CLK - Clocck pin
+		// pin_DIO - Data I/O pin
 		TM16XX(chip_type ic, uint8_t pin_CLK, uint8_t pin_DIO);
+		// constructor for the three wire interface
+		// ic - Type of the chip from the list above
+		// pin_CLK - Clocck pin
+		// pin_DIO - Data I/O pin
+		// pin_STB - Strobe pin (similar to SPI Chip Select)
 		TM16XX(chip_type ic, uint8_t pin_CLK, uint8_t pin_DIO, uint8_t pin_STB);
-		// Low level functions
-		void p2_start(void);
-		void p3_start(void);
-		void p2_stop(void);
-		void p3_stop(void);
-		void p2_write(uint8_t data);
-		bool p2_ack(void);
-		uint8_t p2_read(void);
-		void p3_read(uint8_t* buff);
-		void p2_command(uint8_t command);
-		void p3_command(uint8_t command);
-		void p2_data(uint8_t command, uint8_t data);
-		void p3_data(uint8_t command, uint8_t data);
 
+		// Clear screen. All of the data removed from the display (in overriden functions also from the various buffers)
 		virtual void Clear(void);
+		// Control the display status and brightness
+		// DisplayOn - Enable/Disable the display
+		// Brightness - Set display brightness
 		void SetDisplayState(bool DisplayOn, uint8_t Brightness);
+
+		// Write one byte into the chip's display buffer without data conversion or modification
+		// addr - 0 based start address in the display memory buffer
+		// data - Set value
 		void DisplayBin(uint8_t addr, uint8_t data);
+		// Fill up the chip's display buffer without data conversion or modification
+		// addr - 0 based start address in the display memory buffer
+		// data - Array of the set values
+		// len - Number of bytes to be written
 		void DisplayBin(uint8_t addr, const uint8_t* data, uint8_t len);
+		// Display an integer number
+		// addr - start digit position
+		// leadingzero - fill up the display with 0-s where no value goes
+		// displaylen - placeholder length in digits
+		// data - value to display
 		virtual void DisplayNum(uint8_t addr, bool leadingzero, uint8_t displaylen, uint32_t data);
-// 		void DisplayNum(uint8_t addr, bool leadingzero, uint8_t displaylen, uint16_t data);
-		void DisplayHex(uint8_t addr, uint8_t data);
+		// Display a hexadecimal number
+		// addr - start digit position
+		// displaylen - placeholder length in digits
+		// data - value to display
+		virtual void DisplayHex(uint8_t addr, uint8_t displaylen, uint32_t data);
 	protected:
 		// Variables
 		uint8_t _CLK;
@@ -83,8 +117,30 @@ class TM16XX
 		uint8_t _STB;
 		chip_type _IC;
 
+		// initialization functions
+		// used by the constructors as the constructors can't be inherited
 		void init(chip_type ic, uint8_t pin_CLK, uint8_t pin_DIO);
 		void init(chip_type ic, uint8_t pin_CLK, uint8_t pin_DIO, uint8_t pin_STB);
+
+		// Low level functions
+		// Two pin funcions
+		void p2_start(void);
+		void p2_stop(void);
+		void p2_command(uint8_t command);
+		void p2_data(uint8_t command, uint8_t data);
+		uint8_t p2_read(void);
+		bool p2_ack(void);	// I2C like acknowledge
+
+		// Three pin functions
+		void p3_start(void);
+		void p3_stop(void);
+		void p3_command(uint8_t command);
+		void p3_data(uint8_t command, uint8_t data);
+		void p3_read(uint8_t* buff);
+
+		// Common functions
+		void p23_write(uint8_t data);
+
 	private:
 		// Variables
 		uint8_t _Brightness;

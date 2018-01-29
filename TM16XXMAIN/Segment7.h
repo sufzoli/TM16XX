@@ -10,7 +10,7 @@
 #define SEG7_CHAR_8           B01111111
 #define SEG7_CHAR_9           B01101111
 #define SEG7_CHAR_A           B01110111 
-#define SEG7_CHAR_B           B01111111
+#define SEG7_CHAR_B           B01111100
 #define SEG7_CHAR_C           B00111001
 #define SEG7_CHAR_D           B01011110
 #define SEG7_CHAR_E           B01111001

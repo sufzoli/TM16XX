@@ -182,6 +182,11 @@ class Display_TM1638_8D_16K : public TM16XX
 		uint32_t KeyRead(void);
 		void Clear(void); // The clear function must be overridden because the internal buffer must be cleared also
 		void DisplayNum(uint8_t addr, bool leadingzero, uint8_t displaylen, uint32_t data);
+		// Display a hexadecimal number
+		// addr - start digit position
+		// displaylen - placeholder length in digits
+		// data - value to display
+		virtual void DisplayHex(uint8_t addr, uint8_t displaylen, uint32_t data);
 	private:
 		// Variables
 		uint8_t _BUFF[8] = { 0,0,0,0,0,0,0,0 };

@@ -356,12 +356,27 @@ void Display_TM1638_8D_16K::Clear(void)
 
 void Display_TM1638_8D_16K::DisplayNum(uint8_t addr, bool leadingzero, uint8_t displaylen, uint32_t data)
 {
-	uint8_t tempdata = 0;
 	for (int i = displaylen - 1; i >= 0; i--)
 	{
 		_BUFF[addr + i] = (leadingzero || data != 0) ? HexChars[data % 10] : 0;
 		data /= 10;
 	}
+	displayBuff();
+}
+
+void Display_TM1638_8D_16K::DisplayHex(uint8_t addr, uint8_t displaylen, uint32_t data)
+{
+	for (int i = displaylen - 1; i >= 0; i--)
+	{
+		_BUFF[addr + i] = HexChars[data & 0x0000000F;
+		data <<= 4;
+	}
+	displayBuff();
+}
+
+void Display_TM1638_8D_16K::displayBuff(void)
+{
+	uint8_t tempdata = 0;
 	for (uint8_t i = 0; i < 8; i++)
 	{
 		for (uint8_t j = 0; j < 8; j++)

@@ -7,27 +7,32 @@
 #include <Arduino.h>
 #include "TM16XX.h"
 #include "Segment7.h"
-
+#include "Segment14.h"
 
 // const byte PIN_CLK = 3;   // define CLK pin (any digital pin)
 // const byte PIN_DIO = 2;   // define DIO pin (any digital pin)
+/*
 const byte PIN_STB = 4;   // define DIO pin (any digital pin)
+const byte PIN_CLK = 3;   // define CLK pin (any digital pin)
+const byte PIN_DIO = 2;   // define DIO pin (any digital pin)
+*/
 
-const byte PIN_CLK = 7;   // define CLK pin (any digital pin)
-const byte PIN_DIO = 8;   // define DIO pin (any digital pin)
-
-
+const byte PIN_DOUT = 2;	// define DOUT pin (any digital pin) - DIN on chip
+const byte PIN_DIN = 5;   // define DIN pin (any digital pin) - DOUT on chip
+const byte PIN_CLK = 3;   // define CLK pin (any digital pin)
+const byte PIN_STB = 4;   // define STB pin (any digital pin)
 
 // Display_TM1637_Clock display(PIN_CLK, PIN_DIO);
 // Display_TM1638_8D_16K display(PIN_CLK, PIN_DIO, PIN_STB);
 // Display_TM1638_8D_8K_8L display(PIN_CLK, PIN_DIO, PIN_STB);
-Display_Seeed_Tick_Tock display;
+// Display_Seeed_Tick_Tock display;
 
 
 // TM16XX display(TM1637, PIN_CLK, PIN_DIO);
 
 // TM16XX display(TM1638, PIN_CLK, PIN_DIO, PIN_STB);
 
+TM16XX display(TM1629, PIN_CLK, PIN_DOUT, PIN_DIN, PIN_STB);
 
 void test_tm1637_clock()
 {
@@ -62,7 +67,7 @@ void test_tm1637_clock()
 	*/
 }
 
-/*
+
 void test_tm1638_8D_16K()
 {
 	// Set display brightness (change to adaptive in the next version)
@@ -74,6 +79,7 @@ void test_tm1638_8D_16K()
 	display.DisplayNum(0, false, 8, 12345678);
 }
 
+/*
 void test_tm1638_8D_8K_8L()
 {
 	// Set display brightness (change to adaptive in the next version)
@@ -118,7 +124,7 @@ uint32_t keys;
 void setup()
 {
 	delay(200);
-	test_tm1637_clock();
+	// test_tm1637_clock();
 	// test_tm1638_8D_16K();
 	// test_tm1638_8D_8K_8L();
 	/*
@@ -151,6 +157,18 @@ void setup()
 	display.DisplayNum(0, false, 8, 12345678);
 	// display.DisplayBin(2, 0xFF);
 	*/
+
+	display.Clear();
+  display.SetDisplayState(true, TM16XX_CONTROL_PWM_14);
+	//delay(2000);
+  // display.DisplayNumS14(0, true, 6, 12345);
+
+  display.DisplayStrS14(0, 6, "PHONO ");
+
+
+  // for(int i=0; i<16; i++)
+  // 	  display.DisplayBin(i, 0xFF);
+
 }
 
 // the loop function runs over and over again until power down or reset

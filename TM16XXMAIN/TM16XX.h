@@ -40,6 +40,7 @@
 // interface type
 #define TM16XX_IF_TYPE_P2 0		// 2 wire I2C like (no I2C address) interface
 #define TM16XX_IF_TYPE_P3 1		// 3 wire SPI like (common input/output pin) interface
+#define TM16XX_IF_TYPE_P4 2		// 4 wire SPI like interface (may worth to try, if it is able to act as real SPI)
 
 // Chip type structure. Define how should we use the various chips
 struct chip_type
@@ -55,6 +56,8 @@ struct chip_type
 #define TA6932 chip_type {5, TM16XX_IF_TYPE_P3, 0, 16, TM16XX_BUFF_WORD_8}
 #define TM1616 chip_type {5, TM16XX_IF_TYPE_P3, 0, 8, TM16XX_BUFF_WORD_16}
 #define TM1640 chip_type {5, TM16XX_IF_TYPE_P2, 0, 16, TM16XX_BUFF_WORD_8}
+#define TM1629 chip_type {5, TM16XX_IF_TYPE_P4, 4, 16, TM16XX_BUFF_WORD_16}
+
 
 // Chips I already tested:
 #define TM1636 chip_type {5, TM16XX_IF_TYPE_P2, 1, 4, TM16XX_BUFF_WORD_8}
@@ -82,6 +85,13 @@ class TM16XX
 		// pin_DIO - Data I/O pin
 		// pin_STB - Strobe pin (similar to SPI Chip Select)
 		TM16XX(chip_type ic, uint8_t pin_CLK, uint8_t pin_DIO, uint8_t pin_STB);
+		// constructor for the four wire interface
+		// ic - Type of the chip from the list above
+		// pin_CLK - Clocck pin
+		// pin_DOUT - Data Output pin (internally _DIO)
+		// pin_DIN - Data Input pin
+		// pin_STB - Strobe pin (similar to SPI Chip Select)
+		TM16XX(chip_type ic, uint8_t pin_CLK, uint8_t pin_DOUT, uint8_t pin_DIN, uint8_t pin_STB);
 
 		// Clear screen. All of the data removed from the display (in overriden functions also from the various buffers)
 		virtual void Clear(void);
@@ -105,6 +115,14 @@ class TM16XX
 		// displaylen - placeholder length in digits
 		// data - value to display
 		virtual void DisplayNum(uint8_t addr, bool leadingzero, uint8_t displaylen, uint32_t data);
+		// Display an integer number
+		// addr - start digit position
+		// leadingzero - fill up the display with 0-s where no value goes
+		// displaylen - placeholder length in digits
+		// data - value to display
+		virtual void DisplayNumS14(uint8_t addr, bool leadingzero, uint8_t displaylen, uint32_t data);
+
+		virtual void DisplayStrS14(uint8_t addr, uint8_t displaylen, String data);
 		// Display a hexadecimal number
 		// addr - start digit position
 		// displaylen - placeholder length in digits
@@ -112,15 +130,17 @@ class TM16XX
 		virtual void DisplayHex(uint8_t addr, uint8_t displaylen, uint32_t data);
 	protected:
 		// Variables
-		uint8_t _CLK;
-		uint8_t _DIO;
-		uint8_t _STB;
+		uint8_t _CLK;	// Clock
+		uint8_t _DIO;	// I/O - Also used as Output only in 4 pin mode
+		uint8_t _DIN;	// Input - In 4 pin mode
+		uint8_t _STB;	// Strobe - In 3/4 pin mode
 		chip_type _IC;
 
 		// initialization functions
 		// used by the constructors as the constructors can't be inherited
 		void init(chip_type ic, uint8_t pin_CLK, uint8_t pin_DIO);
 		void init(chip_type ic, uint8_t pin_CLK, uint8_t pin_DIO, uint8_t pin_STB);
+		void init(chip_type ic, uint8_t pin_CLK, uint8_t pin_DOUT, uint8_t pin_DIN, uint8_t pin_STB);
 
 		// Low level functions
 		// Two pin funcions
@@ -132,14 +152,17 @@ class TM16XX
 		bool p2_ack(void);	// I2C like acknowledge
 
 		// Three pin functions
-		void p3_start(void);
-		void p3_stop(void);
-		void p3_command(uint8_t command);
-		void p3_data(uint8_t command, uint8_t data);
+		void p34_command(uint8_t command);
+		void p34_data(uint8_t command, uint8_t data);
 		void p3_read(uint8_t* buff);
 
+		// Four pin fuctions
+		void p4_read(uint8_t* buff);
+
 		// Common functions
-		void p23_write(uint8_t data);
+		void p234_write(uint8_t data);
+		void p34_start(void);
+		void p34_stop(void);
 
 	private:
 		// Variables

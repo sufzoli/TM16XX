@@ -1,6 +1,7 @@
 
 #include "TM16XX.h"
 #include "Segment7.h"
+#include "Segment14.h"
 
 const uint8_t HexChars[16] =
 {
@@ -22,6 +23,126 @@ const uint8_t HexChars[16] =
 	SEG7_CHAR_F
 };
 
+const uint16_t HexChars_S14[16] =
+{
+	SEG14_CHAR_0,
+	SEG14_CHAR_1,
+	SEG14_CHAR_2,
+	SEG14_CHAR_3,
+	SEG14_CHAR_4,
+	SEG14_CHAR_5,
+	SEG14_CHAR_6,
+	SEG14_CHAR_7,
+	SEG14_CHAR_8,
+	SEG14_CHAR_9,
+	SEG14_CHAR_A,
+	SEG14_CHAR_B,
+	SEG14_CHAR_C,
+	SEG14_CHAR_D,
+	SEG14_CHAR_E,
+	SEG14_CHAR_F
+};
+
+const uint16_t ASCII_S14[96] =
+{
+	0,	// 32 Space
+	0,	// 33 !
+	0,	// 34 "
+	0,	// 35 #
+	0,	// 36 $
+	0,  // 37 %
+	0,	// 38 &
+	0,	// 39 '
+	0,  // 40 (
+	0,  // 41 )
+	0,  // 42 *
+	0,  // 43 +
+	0,  // 44 ,
+	0,  // 45 -
+	0,  // 46 .
+	0,	// 47 /
+	SEG14_CHAR_0,	// 48 0
+	SEG14_CHAR_1,	// 49 1
+	SEG14_CHAR_2,	// 50 2
+	SEG14_CHAR_3,	// 51 3
+	SEG14_CHAR_4,	// 52 4
+	SEG14_CHAR_5,	// 53 5
+	SEG14_CHAR_6,	// 54 6
+	SEG14_CHAR_7,	// 55 7
+	SEG14_CHAR_8,	// 56 8
+	SEG14_CHAR_9,	// 57 9
+	0,	// 58 :
+	0,	// 59 ;
+	0,	// 60 <
+	0,	// 61 =
+	0,	// 62 >
+	0,	// 63 ?
+	0,	// 64 @
+	SEG14_CHAR_A,	// 65 A
+	SEG14_CHAR_B,	// 66 B
+	SEG14_CHAR_C,	// 67 C
+	SEG14_CHAR_D,	// 68 D
+	SEG14_CHAR_E,	// 69 E
+	SEG14_CHAR_F,	// 70 F
+	SEG14_CHAR_G,	// 71 G
+	SEG14_CHAR_H,	// 72 H
+	SEG14_CHAR_I,	// 73 I
+	SEG14_CHAR_J,	// 74 J
+	SEG14_CHAR_K,	// 75 K
+	SEG14_CHAR_L,	// 76 L
+	SEG14_CHAR_M,	// 77 M
+	SEG14_CHAR_N,	// 78 N
+	SEG14_CHAR_O,	// 79 O
+	SEG14_CHAR_P,	// 80 P
+	SEG14_CHAR_Q,	// 81 Q
+	SEG14_CHAR_R,	// 82 R
+	SEG14_CHAR_S,	// 83 S
+	SEG14_CHAR_T,	// 84 T
+	SEG14_CHAR_U,	// 85 U
+	SEG14_CHAR_V,	// 86 V
+	SEG14_CHAR_W,	// 87 W
+	SEG14_CHAR_X,	// 88 X
+	SEG14_CHAR_Y,	// 89 Y
+	SEG14_CHAR_Z,	// 90 Z
+	0,	// 91 [
+	0,	// 92 backslash \
+	0,	// 93 ]
+	0,	// 94 ^
+	0,	// 95 _
+	0,	// 96 `
+	SEG14_CHAR_A,	// 97 a
+	SEG14_CHAR_B,	// 98 b
+	SEG14_CHAR_C,	// 99 c
+	SEG14_CHAR_D,	// 100 d
+	SEG14_CHAR_E,	// 101 e
+	SEG14_CHAR_F,	// 102 f
+	SEG14_CHAR_G,	// 103 g
+	SEG14_CHAR_H,	// 104 h
+	SEG14_CHAR_I,	// 105 i
+	SEG14_CHAR_J,	// 106 j
+	SEG14_CHAR_K,	// 107 k
+	SEG14_CHAR_L,	// 108 l
+	SEG14_CHAR_M,	// 109 m
+	SEG14_CHAR_N,	// 110 n
+	SEG14_CHAR_O,	// 111 o
+	SEG14_CHAR_P,	// 112 p
+	SEG14_CHAR_Q,	// 113 q
+	SEG14_CHAR_R,	// 114 r
+	SEG14_CHAR_S,	// 115 s
+	SEG14_CHAR_T,	// 116 t
+	SEG14_CHAR_U,	// 117 u
+	SEG14_CHAR_V,	// 118 v
+	SEG14_CHAR_W,	// 119 w
+	SEG14_CHAR_X,	// 120 x
+	SEG14_CHAR_Y,	// 121 y
+	SEG14_CHAR_Z,	// 122 z
+	0,	// 123 {
+	0,	// 124 |
+	0,	// 125 }
+	0,	// 126 ~
+	0	// 127 DEL
+};
+
 
 TM16XX::TM16XX() {}
 
@@ -33,8 +154,12 @@ TM16XX::TM16XX(chip_type ic, uint8_t pin_CLK, uint8_t pin_DIO, uint8_t pin_STB)
 {
 	init( ic, pin_CLK, pin_DIO, pin_STB);
 }
+TM16XX::TM16XX(chip_type ic, uint8_t pin_CLK, uint8_t pin_DOUT, uint8_t pin_DIN, uint8_t pin_STB)
+{
+	init(ic, pin_CLK, pin_DOUT, pin_DIN, pin_STB);
+}
 
-
+// 2 pin constructor
 void TM16XX::init(chip_type ic, uint8_t pin_CLK, uint8_t pin_DIO)
 {
 	_CLK = pin_CLK;
@@ -46,6 +171,7 @@ void TM16XX::init(chip_type ic, uint8_t pin_CLK, uint8_t pin_DIO)
 	digitalWrite(_DIO, 1);
 }
 
+// 3 pin constructor
 void TM16XX::init(chip_type ic, uint8_t pin_CLK, uint8_t pin_DIO, uint8_t pin_STB)
 {
 	_CLK = pin_CLK;
@@ -60,6 +186,22 @@ void TM16XX::init(chip_type ic, uint8_t pin_CLK, uint8_t pin_DIO, uint8_t pin_ST
  	digitalWrite(_DIO, 1);
 }
 
+// 4 pin constructor
+void TM16XX::init(chip_type ic, uint8_t pin_CLK, uint8_t pin_DOUT, uint8_t pin_DIN, uint8_t pin_STB)
+{
+	_CLK = pin_CLK;
+	_DIO = pin_DOUT;
+	_DIN = pin_DIN;
+	_STB = pin_STB;
+	_IC = ic;
+	pinMode(_CLK, OUTPUT);
+	pinMode(_DIO, OUTPUT);
+	pinMode(_DIN, INPUT_PULLUP);
+	pinMode(_STB, OUTPUT);
+	digitalWrite(_STB, 1);
+	digitalWrite(_CLK, 1);
+	digitalWrite(_DIO, 1);
+}
 
 void TM16XX::p2_start(void)
 {
@@ -69,7 +211,7 @@ void TM16XX::p2_start(void)
 	digitalWrite(_DIO, 0);
 }
 
-void TM16XX::p3_start(void)
+void TM16XX::p34_start(void)
 {
 	digitalWrite(_DIO, 0);
 	digitalWrite(_CLK, 1);
@@ -89,13 +231,13 @@ void TM16XX::p2_stop(void)
 	digitalWrite(_DIO, 1);
 }
 
-void TM16XX::p3_stop(void)
+void TM16XX::p34_stop(void)
 {
 	delayMicroseconds(_IC.clk_delay);
 	digitalWrite(_STB, 1);
 }
 
-void TM16XX::p23_write(uint8_t data)
+void TM16XX::p234_write(uint8_t data)
 {
 	for (uint8_t i = 0; i < 8; i++)
 	{
@@ -126,7 +268,7 @@ uint8_t TM16XX::p2_read(void)
 {
 	uint8_t revalue = 0;
 	p2_start();
-	p23_write(TM16XX_COMMAND_DATA_SET | TM16XX_DATA_READ);
+	p234_write(TM16XX_COMMAND_DATA_SET | TM16XX_DATA_READ);
 	p2_ack();
 
 	pinMode(_DIO, INPUT);
@@ -149,8 +291,8 @@ uint8_t TM16XX::p2_read(void)
 
 void TM16XX::p3_read(uint8_t* buff)
 {
-	p3_start();
-	p23_write(TM16XX_COMMAND_DATA_SET | TM16XX_DATA_READ);
+	p34_start();
+	p234_write(TM16XX_COMMAND_DATA_SET | TM16XX_DATA_READ);
 	pinMode(_DIO, INPUT_PULLUP); // Change data direction to input
 	delayMicroseconds(_IC.clk_delay); // TWAIT
 	for (uint8_t j = 0; j < _IC.ks_read_bytes; j++)
@@ -166,40 +308,62 @@ void TM16XX::p3_read(uint8_t* buff)
 		}
 	}
 	pinMode(_DIO, OUTPUT);
-	p3_stop();
+	p34_stop();
 }
+
+void TM16XX::p4_read(uint8_t* buff)
+{
+	p34_start();
+	p234_write(TM16XX_COMMAND_DATA_SET | TM16XX_DATA_READ);
+	delayMicroseconds(_IC.clk_delay); // TWAIT
+	for (uint8_t j = 0; j < _IC.ks_read_bytes; j++)
+	{
+		for (uint8_t i = 0; i < 8; i++)
+		{
+			buff[j] <<= 1;
+			digitalWrite(_CLK, 0);
+			delayMicroseconds(_IC.clk_delay);
+			digitalWrite(_CLK, 1);
+			buff[j] = buff[j] | digitalRead(_DIN);
+			delayMicroseconds(_IC.clk_delay);
+		}
+	}
+	p34_stop();
+}
+
+
 
 void TM16XX::p2_command(uint8_t command)
 {
 	p2_start();
-	p23_write(command);
+	p234_write(command);
 	p2_ack();
 	p2_stop();
 }
 
-void TM16XX::p3_command(uint8_t command)
+void TM16XX::p34_command(uint8_t command)
 {
-	p3_start();
-	p23_write(command);
-	p3_stop();
+	p34_start();
+	p234_write(command);
+	p34_stop();
 }
 
 void TM16XX::p2_data(uint8_t command, uint8_t data)
 {
 	p2_start();
-	p23_write(command);
+	p234_write(command);
 	p2_ack();
-	p23_write(data);
+	p234_write(data);
 	p2_ack();
 	p2_stop();
 }
 
-void TM16XX::p3_data(uint8_t command, uint8_t data)
+void TM16XX::p34_data(uint8_t command, uint8_t data)
 {
-	p3_start();
-	p23_write(command);
-	p23_write(data);
-	p3_stop();
+	p34_start();
+	p234_write(command);
+	p234_write(data);
+	p34_stop();
 }
 
 void TM16XX::Clear(void)
@@ -210,12 +374,12 @@ void TM16XX::Clear(void)
 			p2_command(TM16XX_COMMAND_DATA_SET | TM16XX_DATA_AUTOINC | TM16XX_DATA_WRITE);
 
 			p2_start();
-			p23_write(TM16XX_COMMAND_ADDRESS);
+			p234_write(TM16XX_COMMAND_ADDRESS);
 			p2_ack();
 
 			for (uint8_t i = 0; i < _IC.display_buff_len; i++)
 			{
-				p23_write(0);
+				p234_write(0);
 				p2_ack();
 			}
 			p2_stop();
@@ -223,17 +387,18 @@ void TM16XX::Clear(void)
 			p2_command(TM16XX_COMMAND_CONTROL | (_DisplayOn ? TM16XX_CONTROL_ON : TM16XX_CONTROL_OFF) | _Brightness);
 			break;
 		case TM16XX_IF_TYPE_P3:
-			p3_command(TM16XX_COMMAND_DATA_SET | TM16XX_DATA_AUTOINC | TM16XX_DATA_WRITE);
+		case TM16XX_IF_TYPE_P4:
+			p34_command(TM16XX_COMMAND_DATA_SET | TM16XX_DATA_AUTOINC | TM16XX_DATA_WRITE);
 
-			p3_start();
-			p23_write(TM16XX_COMMAND_ADDRESS);
+			p34_start();
+			p234_write(TM16XX_COMMAND_ADDRESS);
 			for (uint8_t i = 0; i < _IC.display_buff_len; i++)
 			{
-				p23_write(0);
+				p234_write(0);
 			}
-			p3_stop();
+			p34_stop();
 
-			p3_command(TM16XX_COMMAND_CONTROL | (_DisplayOn ? TM16XX_CONTROL_ON : TM16XX_CONTROL_OFF) | _Brightness);
+			p34_command(TM16XX_COMMAND_CONTROL | (_DisplayOn ? TM16XX_CONTROL_ON : TM16XX_CONTROL_OFF) | _Brightness);
 
 			break;
 	}
@@ -255,9 +420,10 @@ void TM16XX::DisplayBin(uint8_t addr, uint8_t data)
 			p2_command(TM16XX_COMMAND_CONTROL | (_DisplayOn ? TM16XX_CONTROL_ON : TM16XX_CONTROL_OFF) | _Brightness);
 			break;
 		case TM16XX_IF_TYPE_P3:
-			p3_command(TM16XX_COMMAND_DATA_SET);
-			p3_data(TM16XX_COMMAND_ADDRESS | addr, data);
-			p3_command(TM16XX_COMMAND_CONTROL | (_DisplayOn ? TM16XX_CONTROL_ON : TM16XX_CONTROL_OFF) | _Brightness);
+		case TM16XX_IF_TYPE_P4:
+			p34_command(TM16XX_COMMAND_DATA_SET);
+			p34_data(TM16XX_COMMAND_ADDRESS | addr, data);
+			p34_command(TM16XX_COMMAND_CONTROL | (_DisplayOn ? TM16XX_CONTROL_ON : TM16XX_CONTROL_OFF) | _Brightness);
 			break;
 	}
 }
@@ -270,11 +436,11 @@ void TM16XX::DisplayBin(uint8_t addr, const uint8_t* data, uint8_t len)
 		p2_command(TM16XX_COMMAND_DATA_SET | TM16XX_DATA_AUTOINC | TM16XX_DATA_WRITE);
 
 		p2_start();
-		p23_write(TM16XX_COMMAND_ADDRESS | addr);
+		p234_write(TM16XX_COMMAND_ADDRESS | addr);
 		p2_ack();
 		for (uint8_t i = 0; i < len; i++)
 		{
-			p23_write(data[i]);
+			p234_write(data[i]);
 			p2_ack();
 		}
 		p2_stop();
@@ -282,17 +448,18 @@ void TM16XX::DisplayBin(uint8_t addr, const uint8_t* data, uint8_t len)
 		p2_command(TM16XX_COMMAND_CONTROL | (_DisplayOn ? TM16XX_CONTROL_ON : TM16XX_CONTROL_OFF) | _Brightness);
 		break;
 	case TM16XX_IF_TYPE_P3:
-		p3_command(TM16XX_COMMAND_DATA_SET | TM16XX_DATA_AUTOINC | TM16XX_DATA_WRITE);
+	case TM16XX_IF_TYPE_P4:
+		p34_command(TM16XX_COMMAND_DATA_SET | TM16XX_DATA_AUTOINC | TM16XX_DATA_WRITE);
 
-		p3_start();
-		p23_write(TM16XX_COMMAND_ADDRESS | addr);
+		p34_start();
+		p234_write(TM16XX_COMMAND_ADDRESS | addr);
 		for (uint8_t i = 0; i < len; i++)
 		{
-			p23_write(data[i]);
+			p234_write(data[i]);
 		}
-		p3_stop();
+		p34_stop();
 
-		p3_command(TM16XX_COMMAND_CONTROL | (_DisplayOn ? TM16XX_CONTROL_ON : TM16XX_CONTROL_OFF) | _Brightness);
+		p34_command(TM16XX_COMMAND_CONTROL | (_DisplayOn ? TM16XX_CONTROL_ON : TM16XX_CONTROL_OFF) | _Brightness);
 
 		break;
 	}
@@ -306,6 +473,26 @@ void TM16XX::DisplayNum(uint8_t addr, bool leadingzero, uint8_t displaylen, uint
 		data /= 10;
 	}
 }
+
+void TM16XX::DisplayNumS14(uint8_t addr, bool leadingzero, uint8_t displaylen, uint32_t data)
+{
+	for (int i = displaylen - 1; i >= 0; i--)
+	{
+		DisplayBin((addr + i) << _IC.buff_word_width, (leadingzero || data != 0) ? HexChars_S14[data % 10] & 0xFF : 0);
+		DisplayBin(((addr + i) << _IC.buff_word_width) + 1, (leadingzero || data != 0) ? HexChars_S14[data % 10] >> 8 : 0);
+		data /= 10;
+	}
+}
+
+void TM16XX::DisplayStrS14(uint8_t addr, uint8_t displaylen, String data)
+{
+	for (int i = addr; i < displaylen; i++)
+	{
+		DisplayBin((i) << _IC.buff_word_width, ASCII_S14[data[i - addr]-32] & 0xFF);
+		DisplayBin(((i) << _IC.buff_word_width) + 1, ASCII_S14[data[i - addr]-32] >> 8);
+	}
+}
+
 
 void TM16XX::DisplayHex(uint8_t addr, uint8_t displaylen, uint32_t data)
 {
@@ -326,8 +513,8 @@ Display_TM1638_8D_16K::Display_TM1638_8D_16K(uint8_t pin_CLK, uint8_t pin_DIO, u
 uint32_t Display_TM1638_8D_16K::KeyRead(void)
 {
 	uint32_t keys = 0;
-	p3_start();
-	p23_write(TM16XX_COMMAND_DATA_SET | TM16XX_DATA_READ);
+	p34_start();
+	p234_write(TM16XX_COMMAND_DATA_SET | TM16XX_DATA_READ);
 	pinMode(_DIO, INPUT_PULLUP); // Change data direction to input
 	delayMicroseconds(_IC.clk_delay); // TWAIT
 	for (uint8_t i = 0; i < 32; i++)
@@ -340,7 +527,7 @@ uint32_t Display_TM1638_8D_16K::KeyRead(void)
 		delayMicroseconds(_IC.clk_delay);
 	}
 	pinMode(_DIO, OUTPUT);
-	p3_stop();
+	p34_stop();
 	return keys;
 }
 
@@ -368,7 +555,7 @@ void Display_TM1638_8D_16K::DisplayHex(uint8_t addr, uint8_t displaylen, uint32_
 {
 	for (int i = displaylen - 1; i >= 0; i--)
 	{
-		_BUFF[addr + i] = HexChars[data & 0x0000000F;
+		_BUFF[addr + i] = HexChars[data & 0x0000000F];
 		data <<= 4;
 	}
 	displayBuff();
@@ -456,8 +643,8 @@ Display_TM1638_8D_8K_8L::Display_TM1638_8D_8K_8L(uint8_t pin_CLK, uint8_t pin_DI
 uint8_t Display_TM1638_8D_8K_8L::KeyRead(void)
 {
 	uint8_t keys = 0;
-	p3_start();
-	p23_write(TM16XX_COMMAND_DATA_SET | TM16XX_DATA_READ);
+	p34_start();
+	p234_write(TM16XX_COMMAND_DATA_SET | TM16XX_DATA_READ);
 	pinMode(_DIO, INPUT_PULLUP); // Change data direction to input
 	delayMicroseconds(_IC.clk_delay); // TWAIT
 	for (uint8_t i = 0; i < 32; i++)
@@ -472,7 +659,7 @@ uint8_t Display_TM1638_8D_8K_8L::KeyRead(void)
 		delayMicroseconds(_IC.clk_delay);
 	}
 	pinMode(_DIO, OUTPUT);
-	p3_stop();
+	p34_stop();
 	return keys;
 }
 

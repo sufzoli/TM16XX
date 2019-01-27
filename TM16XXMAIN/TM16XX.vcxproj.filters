@@ -27,6 +27,9 @@
     <ClInclude Include="__vm\.TM16XXMAIN.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Segment14.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TM16XX.cpp">

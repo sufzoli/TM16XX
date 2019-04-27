@@ -55,11 +55,35 @@ struct chip_type
 // Declaration of the chips I don't have on hand yet, so it is UNTESTED:
 #define TA6932 chip_type {5, TM16XX_IF_TYPE_P3, 0, 16, TM16XX_BUFF_WORD_8}
 #define TM1616 chip_type {5, TM16XX_IF_TYPE_P3, 0, 8, TM16XX_BUFF_WORD_16}
+#define TM1617 chip_type {5, TM16XX_IF_TYPE_P3, 5, 14, TM16XX_BUFF_WORD_16}
+#define TM1618 chip_type {5, TM16XX_IF_TYPE_P3, 3, 14, TM16XX_BUFF_WORD_16}
+#define TM1620 chip_type {5, TM16XX_IF_TYPE_P3, 0, 12, TM16XX_BUFF_WORD_16}
+#define TM1620B chip_type {5, TM16XX_IF_TYPE_P3, 3, 14, TM16XX_BUFF_WORD_16}
+#define TM1623 chip_type {5, TM16XX_IF_TYPE_P4, 5, 14, TM16XX_BUFF_WORD_16}
+#define TM1624 chip_type {5, TM16XX_IF_TYPE_P3, 0, 14, TM16XX_BUFF_WORD_16}
+#define TM1626A chip_type {5, TM16XX_IF_TYPE_P3, 5, 14, TM16XX_BUFF_WORD_16}
+#define TM1626B chip_type {5, TM16XX_IF_TYPE_P3, 5, 14, TM16XX_BUFF_WORD_16}
+#define TM1627 chip_type {5, TM16XX_IF_TYPE_P3, 5, 14, TM16XX_BUFF_WORD_16}
+#define TM1628 chip_type {5, TM16XX_IF_TYPE_P3, 5, 14, TM16XX_BUFF_WORD_16}
+#define TM1629A chip_type {5, TM16XX_IF_TYPE_P3, 0, 16, TM16XX_BUFF_WORD_16}
+#define TM1629B chip_type {5, TM16XX_IF_TYPE_P3, 4, 16, TM16XX_BUFF_WORD_16}
+#define TM1629C chip_type {5, TM16XX_IF_TYPE_P3, 4, 16, TM16XX_BUFF_WORD_16}
+#define TM1629D chip_type {5, TM16XX_IF_TYPE_P3, 4, 16, TM16XX_BUFF_WORD_16}
+#define TM1630 chip_type {5, TM16XX_IF_TYPE_P3, 4, 10, TM16XX_BUFF_WORD_16}
+#define TM1639 chip_type {5, TM16XX_IF_TYPE_P3, 5, 16, TM16XX_BUFF_WORD_16}
 #define TM1640 chip_type {5, TM16XX_IF_TYPE_P2, 0, 16, TM16XX_BUFF_WORD_8}
-#define TM1629 chip_type {5, TM16XX_IF_TYPE_P4, 4, 16, TM16XX_BUFF_WORD_16}
+#define TM1642 chip_type {5, TM16XX_IF_TYPE_P3, 4, 14, TM16XX_BUFF_WORD_16}
+// TM1650 looks like I2C
+#define TM1651 chip_type {5, TM16XX_IF_TYPE_P2, 1, 4, TM16XX_BUFF_WORD_8}
+// TM1652 1Bit 19200 Baud UART
+#define TM1667 chip_type {5, TM16XX_IF_TYPE_P3, 5, 14, TM16XX_BUFF_WORD_16}
+#define TM1668 chip_type {5, TM16XX_IF_TYPE_P3, 5, 14, TM16XX_BUFF_WORD_16}
+// TM1680 I2C
+// TM1681 CS, RD, WR, DATA interface
 
 
 // Chips I already tested:
+#define TM1629 chip_type {5, TM16XX_IF_TYPE_P4, 4, 16, TM16XX_BUFF_WORD_16}
 #define TM1636 chip_type {5, TM16XX_IF_TYPE_P2, 1, 4, TM16XX_BUFF_WORD_8}
 #define TM1637 chip_type {5, TM16XX_IF_TYPE_P2, 1, 6, TM16XX_BUFF_WORD_8}
 #define TM1638 chip_type {5, TM16XX_IF_TYPE_P3, 4, 16, TM16XX_BUFF_WORD_16}
@@ -121,7 +145,7 @@ class TM16XX
 		// displaylen - placeholder length in digits
 		// data - value to display
 		virtual void DisplayNumS14(uint8_t addr, bool leadingzero, uint8_t displaylen, uint32_t data);
-
+		virtual void DisplayBar(uint8_t addr, uint8_t data);
 		virtual void DisplayStrS14(uint8_t addr, uint8_t displaylen, String data);
 		// Display a hexadecimal number
 		// addr - start digit position

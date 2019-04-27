@@ -17,10 +17,10 @@ const byte PIN_CLK = 3;   // define CLK pin (any digital pin)
 const byte PIN_DIO = 2;   // define DIO pin (any digital pin)
 */
 
-const byte PIN_DOUT = 2;	// define DOUT pin (any digital pin) - DIN on chip
-const byte PIN_DIN = 5;   // define DIN pin (any digital pin) - DOUT on chip
-const byte PIN_CLK = 3;   // define CLK pin (any digital pin)
-const byte PIN_STB = 4;   // define STB pin (any digital pin)
+const byte PIN_DOUT = 5;	// define DOUT pin (any digital pin) - DIN on chip
+const byte PIN_DIN = 4;   // define DIN pin (any digital pin) - DOUT on chip
+const byte PIN_CLK = 6;   // define CLK pin (any digital pin)
+const byte PIN_STB = 7;   // define STB pin (any digital pin)
 
 // Display_TM1637_Clock display(PIN_CLK, PIN_DIO);
 // Display_TM1638_8D_16K display(PIN_CLK, PIN_DIO, PIN_STB);

@@ -469,7 +469,7 @@ void TM16XX::DisplayNum(uint8_t addr, bool leadingzero, uint8_t displaylen, uint
 {
 	for (int i = displaylen - 1; i >= 0; i--)
 	{
-		DisplayBin((addr + i) << _IC.buff_word_width, (leadingzero || data != 0) ? HexChars[data % 10] : 0);
+		DisplayBin((addr + i) << _IC.buff_word_width, (leadingzero || data != 0 || i == displaylen - 1) ? HexChars[data % 10] : 0);
 		data /= 10;
 	}
 }
@@ -478,8 +478,8 @@ void TM16XX::DisplayNumS14(uint8_t addr, bool leadingzero, uint8_t displaylen, u
 {
 	for (int i = displaylen - 1; i >= 0; i--)
 	{
-		DisplayBin((addr + i) << _IC.buff_word_width, (leadingzero || data != 0) ? HexChars_S14[data % 10] & 0xFF : 0);
-		DisplayBin(((addr + i) << _IC.buff_word_width) + 1, (leadingzero || data != 0) ? HexChars_S14[data % 10] >> 8 : 0);
+		DisplayBin((addr + i) << _IC.buff_word_width, (leadingzero || data != 0 || i == displaylen - 1) ? HexChars_S14[data % 10] & 0xFF : 0);
+		DisplayBin(((addr + i) << _IC.buff_word_width) + 1, (leadingzero || data != 0 || i == displaylen - 1) ? HexChars_S14[data % 10] >> 8 : 0);
 		data /= 10;
 	}
 }
@@ -491,6 +491,13 @@ void TM16XX::DisplayStrS14(uint8_t addr, uint8_t displaylen, String data)
 		DisplayBin((i) << _IC.buff_word_width, ASCII_S14[data[i - addr]-32] & 0xFF);
 		DisplayBin(((i) << _IC.buff_word_width) + 1, ASCII_S14[data[i - addr]-32] >> 8);
 	}
+}
+
+void TM16XX::DisplayBar(uint8_t addr, uint8_t data)
+{
+	uint16_t bar = (1 << data) - 1;
+	DisplayBin((addr) << _IC.buff_word_width, bar & 0xFF);
+	DisplayBin(((addr) << _IC.buff_word_width) + 1, bar >> 8);
 }
 
 
@@ -545,7 +552,7 @@ void Display_TM1638_8D_16K::DisplayNum(uint8_t addr, bool leadingzero, uint8_t d
 {
 	for (int i = displaylen - 1; i >= 0; i--)
 	{
-		_BUFF[addr + i] = (leadingzero || data != 0) ? HexChars[data % 10] : 0;
+		_BUFF[addr + i] = (leadingzero || data != 0 || i == displaylen - 1) ? HexChars[data % 10] : 0;
 		data /= 10;
 	}
 	displayBuff();
@@ -596,7 +603,7 @@ void Display_TM1637_Clock::DisplayNum(uint8_t addr, bool leadingzero, uint8_t di
 	for (int i = displaylen - 1; i >= 0; i--)
 	{
 		// generate the binary data of the digit
-		bindata = (leadingzero || data != 0) ? HexChars[data % 10] : 0;
+		bindata = (leadingzero || data != 0 || i == displaylen - 1) ? HexChars[data % 10] : 0;
 		// if it is the second digit (contains the hour/munite separator column)
 		if ((addr + i) == 1)
 		{
@@ -691,7 +698,7 @@ void Display_Seeed_Tick_Tock::DisplayNum(uint8_t addr, bool leadingzero, uint8_t
 	for (int i = displaylen - 1; i >= 0; i--)
 	{
 		// generate the binary data of the digit
-		bindata = (leadingzero || data != 0) ? HexChars[data % 10] : 0;
+		bindata = (leadingzero || data != 0 || i == displaylen - 1) ? HexChars[data % 10] : 0;
 		// if it is the 3rd or 4th digit (contains the hour/munite separator column)
 		if ((addr + i) == 2 || (addr + i) == 3)
 		{
